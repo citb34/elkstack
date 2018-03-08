@@ -33,8 +33,8 @@ CheckFirewall
 yum install java -y &>>$LOG 
 Stat $? "Installing Java"
 
+## Installing Elastic Search
 el_install() {
-    ## Installing Elastic Search
     URL="https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-$VERSION.rpm"
     rpm -q elasticsearch &>>$LOG 
     if [ $? -eq 0 ]; then 
@@ -66,8 +66,8 @@ el_install() {
 }
 
 
+## Installing LogStash 
 ls_install() {
-    ## Installing LogStash 
     URL="https://artifacts.elastic.co/downloads/logstash/logstash-$VERSION.rpm"
     rpm -q logstash &>>$LOG 
     [ $? -eq 0 ] && Stat 10 'LogStash already installed' && return
@@ -76,7 +76,7 @@ ls_install() {
 }
 
 ls_start() {
-    ps -ef | grep 'logstash/runner.rb' | grep -v grep 
+    ps -ef | grep 'logstash/runner.rb' | grep -v grep &>>$LOG 
     [ $? -eq 0 ] && Stat 10 'LogStash already running' && return 
     systemctl enable logstash &>>$LOG 
     systemctl start logstash 
@@ -84,6 +84,25 @@ ls_start() {
 }
 
 
+## Installing Kibana
+ki_install() {
+    URL="https://artifacts.elastic.co/downloads/kibana/kibana-$VERSION-x86_64.rpm"
+    rpm -q kibana &>/dev/null 
+    [ $? -eq 0 ] && Stat 10 'Kibana alredy installed' && return
+    yum install $URL &>>$LOG 
+    Stat $? 'Installing Kibana'
+}
+
+## Starting Kibana
+ki_start() {
+    systemctl enable kibana &>>$LOG
+    systemctl start kibana &>>$LOG
+    Stat $? 'Starting Kibana'
+}
+### Main Program
+
 el_install
 ls_install 
 ls_start
+ki_install
+ki_start
