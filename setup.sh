@@ -27,6 +27,10 @@ CheckSELinux
 ## Checking Firewall on the Server.
 CheckFirewall
 
+## Installing Java
+yum install java -y &>>$LOG 
+Stat $? "Installing Java"
+
 ## Installing Elastic Search
 URL="https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-$VERSION.rpm"
 yum install $URL -y &>>$LOG
