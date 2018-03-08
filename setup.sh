@@ -29,7 +29,7 @@ CheckFirewall
 
 ## Installing Elastic Search
 URL="https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-$VERSION.rpm"
-yum install $URL &>>$LOG
+yum install $URL -y &>>$LOG
 Stat $? "Installing Elastic Search"
 systemctl enable elasticsearch &>$LOG 
 systemctl start elasticsearch 
@@ -46,3 +46,10 @@ done
 
 curl localhost:9200 &>>$LOG 
 Stat $? "Starting Elastic Search"
+
+## Installing LogStash 
+URL="https://artifacts.elastic.co/downloads/logstash/logstash-$VERSION.rpm"
+yum install $URL -y &>>$LOG
+systemctl enable logstash &>>$LOG 
+systemctl start logstash 
+Stat $? "Starting LogStash"
