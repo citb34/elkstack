@@ -76,6 +76,8 @@ ls_install() {
 }
 
 ls_start() {
+    ps -ef | grep 'logstash/runner.rb' | grep -v grep 
+    [ $? -eq 0 ] && Stat 10 'LogStash already running' && return 
     systemctl enable logstash &>>$LOG 
     systemctl start logstash 
     Stat $? "Starting LogStash"
