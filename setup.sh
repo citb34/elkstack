@@ -95,12 +95,17 @@ ki_install() {
 
 ## Starting Kibana
 ki_start() {
+    ps -ef | grep '/etc/kibana/kibana.yml' | grep -v grep &>>$LOG 
+    [ $? -eq 0 ] && SBtat 10 'Kibana already running' && return
+    sed -i -e '/^server.port/ d ' -e '/^#server.port/ a server.port: 5601' -e '/^server.host/ d' -e '/^#server.host/ a server.host: "0.0.0.0"' /etc/kibana/kibana.yml
     systemctl enable kibana &>>$LOG
     systemctl start kibana &>>$LOG
     Stat $? 'Starting Kibana'
 }
-### Main Program
 
+
+
+### Main Program
 el_install
 ls_install 
 ls_start
