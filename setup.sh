@@ -12,6 +12,8 @@ source /tmp/common-functions.sh
 Stat() {
     if [ "$1" = 0 ];then 
         success "$2"
+    elif [ "$1" = 10  ]; then 
+        warning "$2"
     else 
         error "$2"
         exit 1
@@ -31,26 +33,33 @@ CheckFirewall
 yum install java -y &>>$LOG 
 Stat $? "Installing Java"
 
-## Installing Elastic Search
-URL="https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-$VERSION.rpm"
-yum install $URL -y &>>$LOG
-Stat $? "Installing Elastic Search"
-systemctl enable elasticsearch &>$LOG 
-systemctl start elasticsearch 
-i=0
-while [ $i -lt 10 ] ; do 
-    netstat -lntp | grep 9200 &>/dev/null 
+el_install() {
+    ## Installing Elastic Search
+    URL="https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-$VERSION.rpm"
+    rpm -q elasticsearch &>>$LOG 
     if [ $? -eq 0 ]; then 
-        break 
+        Stat 10 "Elastic Search already installed"
     else 
-        sleep 10 
-        i=$(($i+1))
-    fi 
-done 
+        yum install $URL -y &>>$LOG
+        Stat $? "Installing Elastic Search"
+    fi
+    systemctl enable elasticsearch &>$LOG 
+    systemctl start elasticsearch 
+    i=0
+    while [ $i -lt 10 ] ; do 
+        netstat -lntp | grep 9200 &>/dev/null 
+        if [ $? -eq 0 ]; then 
+            break 
+        else 
+            sleep 10 
+            i=$(($i+1))
+        fi 
+    done 
 
-curl localhost:9200 &>>$LOG 
-Stat $? "Starting Elastic Search"
+    curl localhost:9200 &>>$LOG 
+    Stat $? "Starting Elastic Search"
 
+}
 ## Installing LogStash 
 URL="https://artifacts.elastic.co/downloads/logstash/logstash-$VERSION.rpm"
 yum install $URL -y &>>$LOG
