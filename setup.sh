@@ -89,7 +89,7 @@ ki_install() {
     URL="https://artifacts.elastic.co/downloads/kibana/kibana-$VERSION-x86_64.rpm"
     rpm -q kibana &>/dev/null 
     [ $? -eq 0 ] && Stat 10 'Kibana alredy installed' && return
-    yum install $URL &>>$LOG 
+    yum install $URL -y &>>$LOG 
     Stat $? 'Installing Kibana'
 }
 
