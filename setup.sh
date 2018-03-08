@@ -14,6 +14,7 @@ Stat() {
         success "$2"
     else 
         error "$2"
+        exit 1
     fi
 }
 
@@ -29,4 +30,19 @@ CheckFirewall
 ## Installing Elastic Search
 URL="https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-$VERSION.rpm"
 yum install $URL &>>$LOG
-Stat $?
+Stat $? "Installing Elastic Search"
+systemctl enable elasticsearch &>$LOG 
+systemctl start elasticsearch 
+i=0
+while [ $i -lt 10 ] ; do 
+    netstat -lntp | grep 9200 &>/dev/null 
+    if [ $? -eq 0 ]; then 
+        break 
+    else 
+        sleep 10 
+        i=$(($i+1))
+    fi 
+done 
+
+curl localhost:9200 &>>$LOG 
+Stat $? "Starting Elastic Search"
