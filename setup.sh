@@ -65,11 +65,23 @@ el_install() {
     fi
 }
 
+
+ls_install() {
+    ## Installing LogStash 
+    URL="https://artifacts.elastic.co/downloads/logstash/logstash-$VERSION.rpm"
+    rpm -q logstash &>>$LOG 
+    [ $? -eq 0 ] && Stat 10 'LogStash already installed' && return
+    yum install $URL -y &>>$LOG
+    Stat $? "Installing LogStash"
+}
+
+ls_start() {
+    systemctl enable logstash &>>$LOG 
+    systemctl start logstash 
+    Stat $? "Starting LogStash"
+}
+
+
 el_install
-exit 
-## Installing LogStash 
-URL="https://artifacts.elastic.co/downloads/logstash/logstash-$VERSION.rpm"
-yum install $URL -y &>>$LOG
-systemctl enable logstash &>>$LOG 
-systemctl start logstash 
-Stat $? "Starting LogStash"
+ls_install 
+ls_start
