@@ -60,6 +60,9 @@ el_install() {
     Stat $? "Starting Elastic Search"
 
 }
+
+el_install
+exit 
 ## Installing LogStash 
 URL="https://artifacts.elastic.co/downloads/logstash/logstash-$VERSION.rpm"
 yum install $URL -y &>>$LOG
