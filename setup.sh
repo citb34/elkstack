@@ -43,22 +43,26 @@ el_install() {
         yum install $URL -y &>>$LOG
         Stat $? "Installing Elastic Search"
     fi
-    systemctl enable elasticsearch &>$LOG 
-    systemctl start elasticsearch 
-    i=0
-    while [ $i -lt 10 ] ; do 
-        netstat -lntp | grep 9200 &>/dev/null 
-        if [ $? -eq 0 ]; then 
-            break 
-        else 
-            sleep 10 
-            i=$(($i+1))
-        fi 
-    done 
 
-    curl localhost:9200 &>>$LOG 
-    Stat $? "Starting Elastic Search"
-
+    ps -ef | grep '/etc/elasticsearch' | grep -v grep &>>$LOG 
+    if [ $? -eq 0 ]; then 
+        Stat 10 'Elastic Search already running'
+    else 
+        systemctl enable elasticsearch &>$LOG 
+        systemctl start elasticsearch 
+        i=0
+        while [ $i -lt 10 ] ; do 
+            netstat -lntp | grep 9200 &>/dev/null 
+            if [ $? -eq 0 ]; then 
+                break 
+            else 
+                sleep 10 
+                i=$(($i+1))
+            fi 
+        done 
+        curl localhost:9200 &>>$LOG 
+        Stat $? "Starting Elastic Search"
+    fi
 }
 
 el_install
